@@ -19,6 +19,7 @@ const RootLayout = () => {
           <ul>
             <li>
               <Link to="home">Home</Link>
+              <Link to="suggestions/get">Get a Suggestion</Link>
             </li>
           </ul>
         </div>

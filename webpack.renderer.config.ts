@@ -20,5 +20,4 @@ export const rendererConfig: Configuration = {
       "@": path.resolve(__dirname, "src"),
     },
   },
-  devServer: {},
 };

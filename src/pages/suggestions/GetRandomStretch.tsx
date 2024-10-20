@@ -1,47 +1,46 @@
+import { getRandomSuggestionWithOptionalFilters } from "@/utils/suggestions";
 import { useState } from "react";
-import { Suggestion, useSuggestionsContext } from "@/hooks/useSuggestions";
 
-const Get = () => {
-  const { getRandomSuggestionWithOptionalFilters } = useSuggestionsContext();
-  const [suggestion, setSuggestion] = useState<Suggestion | undefined>(
-    getRandomSuggestionWithOptionalFilters()
+const GetRandomStretch = () => {
+  const [stretch, setStretch] = useState(
+    getRandomSuggestionWithOptionalFilters({ category: "stretching" })
   );
 
   return (
     <div>
-      {suggestion === undefined ? (
+      {stretch === undefined ? (
         <h1>
           There were no results with the selected filters, try narrowing your
           search
         </h1>
       ) : (
         <div>
-          <h1>{suggestion.name}</h1>
+          <h1>{stretch.name}</h1>
           <h2>Instructions</h2>
           <ul>
-            {suggestion.instructions.map((instruction, index) => (
+            {stretch.instructions.map((instruction, index) => (
               <li key={index}>{instruction}</li>
             ))}
           </ul>
           <h2>Primary Muscles</h2>
           <ul>
-            {suggestion.primaryMuscles.map((muscle, index) => (
+            {stretch.primaryMuscles.map((muscle, index) => (
               <li key={index}>{muscle}</li>
             ))}
           </ul>
           <h2>Secondary Muscles</h2>
           <ul>
-            {suggestion.secondaryMuscles.map((muscle, index) => (
+            {stretch.secondaryMuscles.map((muscle, index) => (
               <li key={index}>{muscle}</li>
             ))}
           </ul>
           <h2>Images</h2>
           <ul>
-            {suggestion.images.map((image, index) => (
+            {stretch.images.map((image, index) => (
               <li key={index}>
                 <img
                   src={`https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${image}`}
-                  alt={suggestion.name}
+                  alt={stretch.name}
                 />
               </li>
             ))}
@@ -49,10 +48,14 @@ const Get = () => {
           <div>
             <button
               onClick={() =>
-                setSuggestion(getRandomSuggestionWithOptionalFilters())
+                setStretch(
+                  getRandomSuggestionWithOptionalFilters({
+                    category: "stretching",
+                  })
+                )
               }
             >
-              Get another suggestion
+              Get another stretch
             </button>
           </div>
         </div>
@@ -61,4 +64,4 @@ const Get = () => {
   );
 };
 
-export default Get;
+export default GetRandomStretch;

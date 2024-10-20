@@ -26,6 +26,7 @@ const trackActivity = () => {
 };
 
 const showUnproductiveNotification = (activePercentage: number) => {
+  console.log("Showing unproductive notification...");
   const activePercentageRounded = Math.round(activePercentage);
   const notification = new Notification({
     title: "Ready for a short break?",
@@ -68,6 +69,10 @@ const checkUserProductivity = async () => {
 };
 
 const handleUnproductivePeriod = (activePercentage: number) => {
+  console.log(
+    "Unproductive period detected! Active percentage:",
+    activePercentage
+  );
   showUnproductiveNotification(activePercentage);
   resetActiveTime();
 };
@@ -75,8 +80,10 @@ const handleUnproductivePeriod = (activePercentage: number) => {
 export const startActivityLogger = async () => {
   const settings = await storeFunctions.getStoreValue("settings");
   if (!settings.displayUnproductiveNotifications) {
+    console.log("Unproductive notifications are disabled, not starting logger");
     return;
   }
+  console.log("Starting activity logger...");
   shortCheckInterval = setInterval(trackActivity, CHECK_INTERVAL_MS); // Check every second
   longCheckInterval = setInterval(
     checkUserProductivity,
@@ -85,12 +92,14 @@ export const startActivityLogger = async () => {
 };
 
 export const stopActivityLogger = () => {
+  console.log("Stopping activity logger...");
   clearInterval(shortCheckInterval);
   clearInterval(longCheckInterval);
   activeTime = 0;
 };
 
 export const restartActivityLogger = () => {
+  console.log("Restarting activity logger...");
   stopActivityLogger();
   startActivityLogger();
 };

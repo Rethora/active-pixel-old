@@ -1,9 +1,27 @@
 import { Suspense } from "react";
-import { Await, Form } from "react-router-dom";
+import { ActionFunctionArgs, Await, Form } from "react-router-dom";
 import { Settings } from "@/utils/store";
 
 import { rootLoader } from "@/layouts/RootLayout";
 import { useRouteLoaderData } from "react-router-typesafe";
+
+export const settingsActions = async (props: ActionFunctionArgs<any>) => {
+  if (props.request.method === "PUT") {
+    const formData = await props.request.formData();
+    const formDataEntries = Object.fromEntries(formData.entries());
+    const settings: Settings = {
+      displayUnproductiveNotifications:
+        formDataEntries["displayUnproductiveNotifications"] === "on",
+      productivityThresholdPercentage: Number(
+        formDataEntries["productivityThresholdPercentage"]
+      ),
+      productivityCheckInterval:
+        Number(formDataEntries["productivityCheckInterval"]) * 60000,
+    };
+    await window.electronAPI.setStoreValue("settings", settings);
+  }
+  return null;
+};
 
 const Settings = () => {
   const { settingsPromise } = useRouteLoaderData<typeof rootLoader>("root");

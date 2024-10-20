@@ -2,10 +2,9 @@ import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import RootLayout, { rootLoader } from "@/layouts/RootLayout";
 import Home from "@/pages/Home";
-import SuggestionsLayout from "./layouts/SuggestionsLayout";
-import Get from "@/pages/suggestions/Get";
-import SettingsPage from "@/pages/Settings";
-import { Settings } from "@/utils/store";
+import SuggestionsLayout from "@/layouts/SuggestionsLayout";
+import SettingsPage, { settingsActions } from "@/pages/Settings";
+import GetRandomStretch from "./pages/suggestions/GetRandomStretch";
 
 const router = createHashRouter([
   {
@@ -21,35 +20,32 @@ const router = createHashRouter([
       {
         path: "settings",
         element: <SettingsPage />,
-        action: async ({ request }) => {
-          if (request.method === "PUT") {
-            const formData = await request.formData();
-            const formDataEntries = Object.fromEntries(formData.entries());
-            const settings: Settings = {
-              displayUnproductiveNotifications:
-                formDataEntries["displayUnproductiveNotifications"] === "on",
-              productivityThresholdPercentage: Number(
-                formDataEntries["productivityThresholdPercentage"]
-              ),
-              productivityCheckInterval:
-                Number(formDataEntries["productivityCheckInterval"]) * 60000,
-            };
-            await window.electronAPI.setStoreValue("settings", settings);
-          }
-          return null;
-        },
+        action: settingsActions,
       },
       {
         path: "suggestions",
         element: <SuggestionsLayout />,
         children: [
           {
-            path: "get",
-            element: <Get />,
+            children: [
+              {
+                path: "random",
+                children: [
+                  {
+                    path: "stretch",
+                    element: <GetRandomStretch />,
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <RootLayout />,
   },
 ]);
 

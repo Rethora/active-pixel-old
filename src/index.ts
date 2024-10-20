@@ -4,7 +4,7 @@ import {
   restartActivityLogger,
   startActivityLogger,
   stopActivityLogger,
-} from "./utils/activityLogger";
+} from "@/utils/activityLogger";
 import { Store, StoreFunctions, storeFunctions } from "@/utils/store";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -150,6 +150,7 @@ ipcMain.handle(
     key: K,
     value: Store[K]
   ) => {
+    console.log("Setting store value", key, value);
     await storeFunctions.setStoreValue(key, value);
 
     if (key === "settings") {

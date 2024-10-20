@@ -1,14 +1,17 @@
 import { createRoot } from "react-dom/client";
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import RootLayout from "@/layouts/RootLayout";
+import RootLayout, { rootLoader } from "@/layouts/RootLayout";
 import Home from "@/pages/Home";
 import SuggestionsLayout from "./layouts/SuggestionsLayout";
 import Get from "@/pages/suggestions/Get";
-import Settings from "@/pages/Settings";
+import SettingsPage from "@/pages/Settings";
+import { Settings } from "@/utils/store";
 
 const router = createHashRouter([
   {
+    id: "root",
     path: "",
+    loader: rootLoader,
     element: <RootLayout />,
     children: [
       {
@@ -17,7 +20,24 @@ const router = createHashRouter([
       },
       {
         path: "settings",
-        element: <Settings />,
+        element: <SettingsPage />,
+        action: async ({ request }) => {
+          if (request.method === "PUT") {
+            const formData = await request.formData();
+            const formDataEntries = Object.fromEntries(formData.entries());
+            const settings: Settings = {
+              displayUnproductiveNotifications:
+                formDataEntries["displayUnproductiveNotifications"] === "on",
+              productivityThresholdPercentage: Number(
+                formDataEntries["productivityThresholdPercentage"]
+              ),
+              productivityCheckInterval:
+                Number(formDataEntries["productivityCheckInterval"]) * 60000,
+            };
+            await window.electronAPI.setStoreValue("settings", settings);
+          }
+          return null;
+        },
       },
       {
         path: "suggestions",

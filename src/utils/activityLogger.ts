@@ -1,13 +1,13 @@
 import { powerMonitor, Notification } from "electron";
-import { mainWindow } from "../index";
+import { mainWindow } from "@/index";
+import { storeFunctions } from "@/utils/store";
 
 const IDLE_THRESHOLD = 1; // seconds
 const CHECK_INTERVAL_MS = 1000; // 1 second
-// TODO: change back to 5 minutes
-const PRODUCTIVITY_CHECK_INTERVAL_MIN = 1; // 5 minutes
-const PRODUCTIVITY_CHECK_INTERVAL_MS =
-  PRODUCTIVITY_CHECK_INTERVAL_MIN * 60 * 1000; // 5 minutes
-const PRODUCTIVITY_THRESHOLD_PERCENTAGE = 70; // 70%
+// const PRODUCTIVITY_CHECK_INTERVAL_MIN = 1; // 5 minutes
+// const PRODUCTIVITY_CHECK_INTERVAL_MS =
+// PRODUCTIVITY_CHECK_INTERVAL_MIN * 60 * 1000; // 5 minutes
+// const PRODUCTIVITY_THRESHOLD_PERCENTAGE = 70; // 70%
 const NOTIFICATION_DELAY_MS = 5000; // 5 seconds
 
 let activeTime = 0;
@@ -19,12 +19,10 @@ const resetActiveTime = () => {
 };
 
 const trackActivity = () => {
-  const idleTime = powerMonitor.getSystemIdleTime();
-  if (idleTime < IDLE_THRESHOLD) {
+  const state = powerMonitor.getSystemIdleState(3); // ? Testing this rn (gives the user 3 seconds of leeway)
+  if (state === "active") {
     activeTime += 1;
   }
-  console.log("Idle Time:", idleTime);
-  console.log("Active Time:", activeTime);
 };
 
 const showUnproductiveNotification = (activePercentage: number) => {
@@ -50,12 +48,14 @@ const showUnproductiveNotification = (activePercentage: number) => {
   notification.show();
 };
 
-const checkUserProductivity = () => {
+const checkUserProductivity = async () => {
+  const settings = await storeFunctions.getStoreValue("settings");
   const activePercentage =
-    (activeTime / (PRODUCTIVITY_CHECK_INTERVAL_MS / 1000)) * 100;
+    (activeTime / (settings.productivityCheckInterval / 1000)) * 100;
 
   const idleTime = powerMonitor.getSystemIdleTime();
-  if (activePercentage <= PRODUCTIVITY_THRESHOLD_PERCENTAGE) {
+  console.log("End of period, active percentage:", activePercentage);
+  if (activePercentage <= settings.productivityThresholdPercentage) {
     if (idleTime >= IDLE_THRESHOLD) {
       handleUnproductivePeriod(activePercentage);
     } else {
@@ -72,15 +72,25 @@ const handleUnproductivePeriod = (activePercentage: number) => {
   resetActiveTime();
 };
 
-export const startActivityLogger = () => {
+export const startActivityLogger = async () => {
+  const settings = await storeFunctions.getStoreValue("settings");
+  if (!settings.displayUnproductiveNotifications) {
+    return;
+  }
   shortCheckInterval = setInterval(trackActivity, CHECK_INTERVAL_MS); // Check every second
   longCheckInterval = setInterval(
     checkUserProductivity,
-    PRODUCTIVITY_CHECK_INTERVAL_MS
-  ); // Check every 5 minutes
+    settings.productivityCheckInterval
+  );
 };
 
 export const stopActivityLogger = () => {
   clearInterval(shortCheckInterval);
   clearInterval(longCheckInterval);
+  activeTime = 0;
+};
+
+export const restartActivityLogger = () => {
+  stopActivityLogger();
+  startActivityLogger();
 };

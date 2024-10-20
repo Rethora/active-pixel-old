@@ -2,11 +2,31 @@ import { promises as fs } from "fs";
 import { join, dirname } from "path";
 import { homedir } from "os";
 
-export type SettingsKey = "displayUnproductiveNotifications";
+export interface Settings {
+  displayUnproductiveNotifications: boolean;
+  productivityThresholdPercentage: number;
+  productivityCheckInterval: number;
+}
+
+export type SettingsKey = keyof Settings;
+
+export interface Store {
+  settings: Settings;
+}
+
+export const defaultSettings: Settings = {
+  displayUnproductiveNotifications: false,
+  productivityThresholdPercentage: 70, // 70%
+  productivityCheckInterval: 300000, // 5 minutes
+};
+
+export const defaultStoreValues: Store = {
+  settings: defaultSettings,
+};
 
 const filePath = join(homedir(), ".active-pixel", "store.json");
 
-async function ensureDirectoryExistence(filePath: string) {
+export const ensureDirectoryExistence = async (filePath: string) => {
   const dname = dirname(filePath);
   try {
     await fs.mkdir(dname, { recursive: true });
@@ -15,46 +35,54 @@ async function ensureDirectoryExistence(filePath: string) {
       throw error;
     }
   }
-}
+};
 
-async function readStore() {
+export const readStore = async (): Promise<Store> => {
   try {
     const data = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(data);
+    return JSON.parse(data) as Store;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      // File does not exist, return an empty object
-      return {};
+      // File does not exist, return default store values
+      return { ...defaultStoreValues };
     }
     throw error;
   }
-}
+};
 
-async function writeStore(data: any) {
-  await ensureDirectoryExistence(filePath);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
-}
+export type StoreFunctions = {
+  writeStore: (store: Store) => Promise<void>;
+  getStoreValue: <K extends keyof Store>(key: K) => Promise<Store[K]>;
+  setStoreValue: <K extends keyof Store>(
+    key: K,
+    value: Store[K]
+  ) => Promise<void>;
+  deleteStoreValue: <K extends keyof Store>(key: K) => Promise<void>;
+};
 
-async function getSetting(key: SettingsKey) {
-  const store = await readStore();
-  if (store.settings && store.settings[key] !== undefined) {
-    return store.settings[key];
-  }
+export const storeFunctions: StoreFunctions = {
+  writeStore: async (store: Store) => {
+    await ensureDirectoryExistence(filePath);
+    await fs.writeFile(filePath, JSON.stringify(store, null, 2), "utf-8");
+  },
 
-  // Return default value if key is not found
-  const defaults: Record<SettingsKey, any> = {
-    displayUnproductiveNotifications: true,
-  };
-  return defaults[key];
-}
+  getStoreValue: async <K extends keyof Store>(key: K): Promise<Store[K]> => {
+    const store = await readStore();
+    return store[key];
+  },
 
-async function setSetting(key: SettingsKey, value: any) {
-  const store = await readStore();
-  if (!store.settings) {
-    store.settings = {};
-  }
-  store.settings[key] = value;
-  await writeStore(store);
-}
+  setStoreValue: async <K extends keyof Store>(
+    key: K,
+    value: Store[K]
+  ): Promise<void> => {
+    const store = await readStore();
+    store[key] = value;
+    await storeFunctions.writeStore(store);
+  },
 
-export { getSetting, setSetting };
+  deleteStoreValue: async <K extends keyof Store>(key: K): Promise<void> => {
+    const store = await readStore();
+    delete store[key];
+    await storeFunctions.writeStore(store);
+  },
+};

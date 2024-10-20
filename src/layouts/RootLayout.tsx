@@ -1,6 +1,5 @@
 import RootContext from "@/contexts/RootContext";
 import useRoot from "@/hooks/useRoot";
-import { useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 
 const RootLayout = () => {
@@ -20,6 +19,7 @@ const RootLayout = () => {
             <li>
               <Link to="home">Home</Link>
               <Link to="suggestions/get">Get a Suggestion</Link>
+              <Link to="settings">Settings</Link>
             </li>
           </ul>
         </div>

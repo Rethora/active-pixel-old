@@ -3,7 +3,8 @@ import { createHashRouter, RouterProvider } from "react-router-dom";
 import RootLayout from "@/layouts/RootLayout";
 import Home from "@/pages/Home";
 import SuggestionsLayout from "./layouts/SuggestionsLayout";
-import Get from "./pages/suggestions/Get";
+import Get from "@/pages/suggestions/Get";
+import Settings from "@/pages/Settings";
 
 const router = createHashRouter([
   {
@@ -13,6 +14,10 @@ const router = createHashRouter([
       {
         path: "home",
         element: <Home />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
       },
       {
         path: "suggestions",
@@ -28,5 +33,10 @@ const router = createHashRouter([
   },
 ]);
 
-const root = createRoot(document.getElementById("root"));
-root.render(<RouterProvider router={router} />);
+const container = document.getElementById("root");
+if (container) {
+  const root = createRoot(container);
+  root.render(<RouterProvider router={router} />);
+} else {
+  console.error("Root container not found");
+}

@@ -5,4 +5,7 @@ import { contextBridge, ipcRenderer } from "electron";
 contextBridge.exposeInMainWorld("electronAPI", {
   getSystemIdleTime: () => ipcRenderer.invoke("get-system-idle-time"),
   displayNotification: () => ipcRenderer.invoke("display-notification"),
+  getSetting: (key: string) => ipcRenderer.invoke("get-setting", key),
+  setSetting: (key: string, value: any) =>
+    ipcRenderer.invoke("set-setting", key, value),
 });

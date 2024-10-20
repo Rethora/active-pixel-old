@@ -163,10 +163,26 @@
 // import "./handlers/notification";
 
 import { app, BrowserWindow, Tray, Menu } from "electron";
-import path from "path";
+import { join } from "path";
+import {
+  startActivityLogger,
+  stopActivityLogger,
+} from "./utils/activityLogger";
+import { getSetting } from "./utils/store";
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+declare global {
+  interface Window {
+    electronAPI: {
+      getSystemIdleTime: () => number;
+      displayNotification: () => void;
+      getSetting: (key: string) => Promise<any>;
+      setSetting: (key: string, value: any) => Promise<void>;
+    };
+  }
+}
 
 let mainWindow: BrowserWindow | null;
 let tray: Tray | null;
@@ -196,7 +212,7 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
     // Open the DevTools in development.
-    if (process.env.NODE_ENV === "development") {
+    if (process.env["NODE_ENV"] === "development") {
       mainWindow.webContents.openDevTools();
     }
 
@@ -210,14 +226,15 @@ if (!app.requestSingleInstanceLock()) {
 
   const createTray = () => {
     console.log(app.getAppPath());
-    tray = new Tray(
-      path.join(app.getAppPath(), "src", "assets", "check-list.png")
-    );
+    tray = new Tray(join(app.getAppPath(), "src", "assets", "check-list.png"));
     const contextMenu = Menu.buildFromTemplate([
       {
         label: "Show App",
         click: () => {
-          mainWindow.show();
+          if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+          }
         },
       },
       {
@@ -235,7 +252,46 @@ if (!app.requestSingleInstanceLock()) {
   app.on("ready", async () => {
     createWindow();
     createTray();
+
+    const displayUnproductiveNotifications = await getSetting(
+      "displayUnproductiveNotifications"
+    );
+    console.log(
+      "displayUnproductiveNotifications",
+      displayUnproductiveNotifications
+    );
+    if (displayUnproductiveNotifications) {
+      startActivityLogger();
+    }
+
+    // [
+    //   {
+    //     time: "*/5 * * * *",
+    //     title: "5 min has passed",
+    //     body: "Time to get to work!",
+    //   },
+    //   {
+    //     time: "48 12 * * *",
+    //     title: "It's 12:48",
+    //     body: "Time to go home!",
+    //   },
+    // ].forEach((scheduleConfig) => {
+    //   schedule.scheduleJob(scheduleConfig.time, async () => {
+    //     const notification = new Notification({
+    //       title: scheduleConfig.title,
+    //       body: scheduleConfig.body,
+    //     });
+    //     notification.on("click", () => {
+    //       console.log("Notification clicked");
+    //     });
+    //     notification.show();
+    //   });
+    // });
     // await initAutoLaunch()
+  });
+
+  app.on("before-quit", () => {
+    stopActivityLogger();
   });
 
   app.on("window-all-closed", () => {
@@ -244,3 +300,5 @@ if (!app.requestSingleInstanceLock()) {
     }
   });
 }
+
+import "./handlers/settings";

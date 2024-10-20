@@ -8,4 +8,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getSetting: (key: string) => ipcRenderer.invoke("get-setting", key),
   setSetting: (key: string, value: any) =>
     ipcRenderer.invoke("set-setting", key, value),
+  onUnproductivePeriod: (callback: (activePercentage: number) => void) =>
+    ipcRenderer.on("unproductive-period", (_, activePercentage: number) =>
+      callback(activePercentage)
+    ),
 });

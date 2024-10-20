@@ -180,11 +180,14 @@ declare global {
       displayNotification: () => void;
       getSetting: (key: string) => Promise<any>;
       setSetting: (key: string, value: any) => Promise<void>;
+      onUnproductivePeriod: (
+        callback: (activePercentage: number) => void
+      ) => void;
     };
   }
 }
 
-let mainWindow: BrowserWindow | null;
+export let mainWindow: BrowserWindow | null;
 let tray: Tray | null;
 let isQuitting = false;
 

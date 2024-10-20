@@ -1,15 +1,18 @@
 import { powerMonitor, Notification } from "electron";
+import { mainWindow } from "../index";
 
 const IDLE_THRESHOLD = 1; // seconds
 const CHECK_INTERVAL_MS = 1000; // 1 second
-const PRODUCTIVITY_CHECK_INTERVAL_MIN = 5;
+// TODO: change back to 5 minutes
+const PRODUCTIVITY_CHECK_INTERVAL_MIN = 1; // 5 minutes
 const PRODUCTIVITY_CHECK_INTERVAL_MS =
   PRODUCTIVITY_CHECK_INTERVAL_MIN * 60 * 1000; // 5 minutes
 const PRODUCTIVITY_THRESHOLD_PERCENTAGE = 70; // 70%
 const NOTIFICATION_DELAY_MS = 5000; // 5 seconds
 
 let activeTime = 0;
-let checkInterval: NodeJS.Timeout;
+let shortCheckInterval: NodeJS.Timeout;
+let longCheckInterval: NodeJS.Timeout;
 
 const resetActiveTime = () => {
   activeTime = 0;
@@ -24,17 +27,26 @@ const trackActivity = () => {
   console.log("Active Time:", activeTime);
 };
 
-const showProductivityNotification = (activePercentage: number) => {
+const showUnproductiveNotification = (activePercentage: number) => {
+  const activePercentageRounded = Math.round(activePercentage);
   const notification = new Notification({
-    title: "Productivity Check",
-    body: `You've been ${activePercentage.toFixed(
-      2
-    )}% active in the last 5 minutes. ${
-      activePercentage >= PRODUCTIVITY_THRESHOLD_PERCENTAGE
-        ? "Keep it up!"
-        : "Time to focus!"
-    }`,
+    title: "Ready for a short break?",
+    body: "A quick stretch can help you stay productive!",
   });
+  notification.on("click", () => {
+    console.log(mainWindow);
+    if (mainWindow?.isMinimized()) {
+      console.log("Restoring window...");
+      mainWindow.restore();
+    }
+    mainWindow?.show();
+    mainWindow?.focus();
+    mainWindow?.webContents.send(
+      "unproductive-period",
+      activePercentageRounded
+    );
+  });
+
   notification.show();
 };
 
@@ -43,20 +55,32 @@ const checkUserProductivity = () => {
     (activeTime / (PRODUCTIVITY_CHECK_INTERVAL_MS / 1000)) * 100;
 
   const idleTime = powerMonitor.getSystemIdleTime();
-  if (idleTime >= IDLE_THRESHOLD) {
-    showProductivityNotification(activePercentage);
-    resetActiveTime();
+  if (activePercentage <= PRODUCTIVITY_THRESHOLD_PERCENTAGE) {
+    if (idleTime >= IDLE_THRESHOLD) {
+      handleUnproductivePeriod(activePercentage);
+    } else {
+      console.log("User is busy, delaying notification...");
+      setTimeout(checkUserProductivity, NOTIFICATION_DELAY_MS);
+    }
   } else {
-    console.log("User is busy, delaying notification...");
-    setTimeout(checkUserProductivity, NOTIFICATION_DELAY_MS);
+    resetActiveTime();
   }
 };
 
+const handleUnproductivePeriod = (activePercentage: number) => {
+  showUnproductiveNotification(activePercentage);
+  resetActiveTime();
+};
+
 export const startActivityLogger = () => {
-  checkInterval = setInterval(trackActivity, CHECK_INTERVAL_MS); // Check every second
-  setInterval(checkUserProductivity, PRODUCTIVITY_CHECK_INTERVAL_MS); // Check every 5 minutes
+  shortCheckInterval = setInterval(trackActivity, CHECK_INTERVAL_MS); // Check every second
+  longCheckInterval = setInterval(
+    checkUserProductivity,
+    PRODUCTIVITY_CHECK_INTERVAL_MS
+  ); // Check every 5 minutes
 };
 
 export const stopActivityLogger = () => {
-  clearInterval(checkInterval);
+  clearInterval(shortCheckInterval);
+  clearInterval(longCheckInterval);
 };

@@ -13,7 +13,7 @@ This app isn't only beneficial to remote workers, but to anyone who spends a lon
 1. **Clone the repository**:
 
    ```sh
-   git clone https://github.com/rethora/active-pixel.git
+   git clone https://github.com/Rethora/active-pixel.git
    cd active-pixel
    ```
 

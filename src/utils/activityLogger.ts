@@ -1,5 +1,5 @@
 import { powerMonitor, Notification } from "electron";
-import { mainWindow } from "@/index";
+import { mainWindow, showHiddenWindow } from "@/index";
 import { storeFunctions } from "@/utils/store";
 
 const IDLE_THRESHOLD = 1; // seconds
@@ -34,12 +34,7 @@ const showUnproductiveNotification = (activePercentage: number) => {
   });
   notification.on("click", () => {
     console.log(mainWindow);
-    if (mainWindow?.isMinimized()) {
-      console.log("Restoring window...");
-      mainWindow.restore();
-    }
-    mainWindow?.show();
-    mainWindow?.focus();
+    showHiddenWindow();
     mainWindow?.webContents.send(
       "unproductive-period",
       activePercentageRounded

@@ -14,4 +14,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on("unproductive-period", (_, activePercentage: number) =>
       callback(activePercentage)
     ),
+  quitApp: () => ipcRenderer.invoke("quit-app"),
 });

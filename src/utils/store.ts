@@ -6,6 +6,9 @@ export interface Settings {
   displayUnproductiveNotifications: boolean;
   productivityThresholdPercentage: number;
   productivityCheckInterval: number;
+  runInBackground: boolean;
+  runOnStartup: boolean;
+  showWindowOnStartup: boolean;
 }
 
 export type SettingsKey = keyof Settings;
@@ -18,13 +21,20 @@ export const defaultSettings: Settings = {
   displayUnproductiveNotifications: false,
   productivityThresholdPercentage: 70, // 70%
   productivityCheckInterval: 300000, // 5 minutes
+  runInBackground: false,
+  runOnStartup: false,
+  showWindowOnStartup: true,
 };
 
 export const defaultStoreValues: Store = {
   settings: defaultSettings,
 };
 
-const filePath = join(homedir(), ".active-pixel", "store.json");
+const filePath = join(
+  homedir(),
+  ".active-pixel",
+  `${process.env["NODE_ENV"] === "development" ? "dev-" : ""}store.json`
+);
 
 export const ensureDirectoryExistence = async (filePath: string) => {
   const dname = dirname(filePath);

@@ -24,6 +24,9 @@ const RootLayout = () => {
             <Link to="home">Home</Link>
           </li>
           <li>
+            <Link to="suggestions/random/stretch">Get Random Stretch</Link>
+          </li>
+          <li>
             <Link to="notfound">Not Found</Link>
           </li>
           <li>

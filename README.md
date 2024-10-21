@@ -8,12 +8,6 @@ When working a full time remote job, sometimes you can get caught up in your wor
 The goal is to recommend new activities (exercises, stretches, etc.) throughout the day to stay healthier.
 This app isn't only beneficial to remote workers, but to anyone who spends a long time at a computer on any given day (gamers, youtube lovers, etc.).
 
-## Features
-
-- **Image Editing**: Crop, resize, and apply filters to images.
-- **Batch Processing**: Process multiple images at once.
-- **Cross-Platform**: Works on Windows, macOS, and Linux.
-
 ## Development
 
 1. **Clone the repository**:

@@ -1,20 +1,20 @@
-import { useEffect } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
-import { makeLoader } from "react-router-typesafe";
+import { useEffect } from 'react'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { makeLoader } from 'react-router-typesafe'
 
 export const rootLoader = makeLoader(() => ({
-  settingsPromise: window.electronAPI.getStoreValue("settings"),
-}));
+  settingsPromise: window.electronAPI.getStoreValue('settings'),
+}))
 
 const RootLayout = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   useEffect(() => {
     window.electronAPI.onUnproductivePeriod((activePercentage) => {
-      console.log("Unproductive period! Active Percentage:", activePercentage);
-      navigate("suggestions/random/stretch");
-    });
-  }, []);
+      console.log('Unproductive period! Active Percentage:', activePercentage)
+      navigate('suggestions/random/stretch')
+    })
+  }, [])
 
   return (
     <div>
@@ -36,7 +36,7 @@ const RootLayout = () => {
       </div>
       <Outlet />
     </div>
-  );
-};
+  )
+}
 
-export default RootLayout;
+export default RootLayout

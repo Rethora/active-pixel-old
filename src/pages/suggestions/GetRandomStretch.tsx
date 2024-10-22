@@ -1,10 +1,10 @@
-import { getRandomSuggestionWithOptionalFilters } from "@/utils/suggestions";
-import { useState } from "react";
+import { getRandomSuggestionWithOptionalFilters } from '@/utils/suggestions'
+import { useState } from 'react'
 
 const GetRandomStretch = () => {
   const [stretch, setStretch] = useState(
-    getRandomSuggestionWithOptionalFilters({ category: "stretching" })
-  );
+    getRandomSuggestionWithOptionalFilters({ category: 'stretching' }),
+  )
 
   return (
     <div>
@@ -50,8 +50,8 @@ const GetRandomStretch = () => {
               onClick={() =>
                 setStretch(
                   getRandomSuggestionWithOptionalFilters({
-                    category: "stretching",
-                  })
+                    category: 'stretching',
+                  }),
                 )
               }
             >
@@ -61,7 +61,7 @@ const GetRandomStretch = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default GetRandomStretch;
+export default GetRandomStretch

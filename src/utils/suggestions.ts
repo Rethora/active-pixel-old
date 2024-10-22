@@ -1,99 +1,99 @@
-import suggestions from "@/data/suggestions.json";
+import suggestions from '@/data/suggestions.json'
 
-export type Force = null | "static" | "pull" | "push";
+export type Force = null | 'static' | 'pull' | 'push'
 
-export type Level = "beginner" | "intermediate" | "expert";
+export type Level = 'beginner' | 'intermediate' | 'expert'
 
-export type Mechanic = null | "isolation" | "compound";
+export type Mechanic = null | 'isolation' | 'compound'
 
 export type Equipment =
   | null
-  | "medicine ball"
-  | "dumbbell"
-  | "body only"
-  | "bands"
-  | "kettlebells"
-  | "foam roll"
-  | "cable"
-  | "machine"
-  | "barbell"
-  | "exercise ball"
-  | "e-z curl bar"
-  | "other";
+  | 'medicine ball'
+  | 'dumbbell'
+  | 'body only'
+  | 'bands'
+  | 'kettlebells'
+  | 'foam roll'
+  | 'cable'
+  | 'machine'
+  | 'barbell'
+  | 'exercise ball'
+  | 'e-z curl bar'
+  | 'other'
 
 export type PrimaryMuscles =
-  | "abdominals"
-  | "abductors"
-  | "adductors"
-  | "biceps"
-  | "calves"
-  | "chest"
-  | "forearms"
-  | "glutes"
-  | "hamstrings"
-  | "lats"
-  | "lower back"
-  | "middle back"
-  | "neck"
-  | "quadriceps"
-  | "shoulders"
-  | "traps"
-  | "triceps";
+  | 'abdominals'
+  | 'abductors'
+  | 'adductors'
+  | 'biceps'
+  | 'calves'
+  | 'chest'
+  | 'forearms'
+  | 'glutes'
+  | 'hamstrings'
+  | 'lats'
+  | 'lower back'
+  | 'middle back'
+  | 'neck'
+  | 'quadriceps'
+  | 'shoulders'
+  | 'traps'
+  | 'triceps'
 
 export type SecondaryMuscles =
-  | "abdominals"
-  | "abductors"
-  | "adductors"
-  | "biceps"
-  | "calves"
-  | "chest"
-  | "forearms"
-  | "glutes"
-  | "hamstrings"
-  | "lats"
-  | "lower back"
-  | "middle back"
-  | "neck"
-  | "quadriceps"
-  | "shoulders"
-  | "traps"
-  | "triceps";
+  | 'abdominals'
+  | 'abductors'
+  | 'adductors'
+  | 'biceps'
+  | 'calves'
+  | 'chest'
+  | 'forearms'
+  | 'glutes'
+  | 'hamstrings'
+  | 'lats'
+  | 'lower back'
+  | 'middle back'
+  | 'neck'
+  | 'quadriceps'
+  | 'shoulders'
+  | 'traps'
+  | 'triceps'
 
 export type Category =
-  | "powerlifting"
-  | "strength"
-  | "stretching"
-  | "cardio"
-  | "olympic weightlifting"
-  | "strongman"
-  | "plyometrics";
+  | 'powerlifting'
+  | 'strength'
+  | 'stretching'
+  | 'cardio'
+  | 'olympic weightlifting'
+  | 'strongman'
+  | 'plyometrics'
 
 export interface Suggestion {
-  id: string;
-  name: string;
-  force: Force;
-  level: Level;
-  mechanic: Mechanic;
-  equipment: Equipment;
-  primaryMuscles: PrimaryMuscles[];
-  secondaryMuscles: SecondaryMuscles[];
-  instructions: string[];
-  category: Category;
-  images: string[];
+  id: string
+  name: string
+  force: Force
+  level: Level
+  mechanic: Mechanic
+  equipment: Equipment
+  primaryMuscles: PrimaryMuscles[]
+  secondaryMuscles: SecondaryMuscles[]
+  instructions: string[]
+  category: Category
+  images: string[]
 }
 
 export interface SuggestionFilters {
-  force?: Force;
-  level?: Level;
-  mechanic?: Mechanic;
-  equipment?: Equipment;
-  primaryMuscles?: PrimaryMuscles[];
-  secondaryMuscles?: SecondaryMuscles[];
-  category?: Category;
+  force?: Force
+  level?: Level
+  mechanic?: Mechanic
+  equipment?: Equipment
+  primaryMuscles?: PrimaryMuscles[]
+  secondaryMuscles?: SecondaryMuscles[]
+  category?: Category
 }
 
 export const getRandomSuggestionWithOptionalFilters = (
-  filters: SuggestionFilters = {}
+  filters: SuggestionFilters = {},
 ) => {
   const {
     force = null,
@@ -103,7 +103,7 @@ export const getRandomSuggestionWithOptionalFilters = (
     primaryMuscles = [],
     secondaryMuscles = [],
     category = null,
-  } = filters;
+  } = filters
 
   const filteredSuggestions = (suggestions as Suggestion[]).filter(
     (suggestion) => {
@@ -114,21 +114,21 @@ export const getRandomSuggestionWithOptionalFilters = (
         (equipment === null || suggestion.equipment === equipment) &&
         (primaryMuscles.length === 0 ||
           primaryMuscles.some((muscle) =>
-            suggestion.primaryMuscles.includes(muscle)
+            suggestion.primaryMuscles.includes(muscle),
           )) &&
         (secondaryMuscles.length === 0 ||
           secondaryMuscles.some((muscle) =>
-            suggestion.secondaryMuscles.includes(muscle)
+            suggestion.secondaryMuscles.includes(muscle),
           )) &&
         (category === null || suggestion.category === category)
-      );
-    }
-  );
+      )
+    },
+  )
 
-  const randomIndex = Math.floor(Math.random() * filteredSuggestions.length);
-  return filteredSuggestions[randomIndex];
-};
+  const randomIndex = Math.floor(Math.random() * filteredSuggestions.length)
+  return filteredSuggestions[randomIndex]
+}
 
 export const getSuggestionById = (id: string) => {
-  return suggestions.find((exercise) => exercise.id === id);
-};
+  return suggestions.find((exercise) => exercise.id === id)
+}

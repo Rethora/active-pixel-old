@@ -1,33 +1,33 @@
-import { Suspense } from "react";
-import { ActionFunctionArgs, Await, Form } from "react-router-dom";
-import { Settings } from "@/utils/store";
+import { Suspense } from 'react'
+import { ActionFunctionArgs, Await, Form } from 'react-router-dom'
+import { Settings } from '@/utils/store'
 
-import { rootLoader } from "@/layouts/RootLayout";
-import { useRouteLoaderData } from "react-router-typesafe";
+import { rootLoader } from '@/layouts/RootLayout'
+import { useRouteLoaderData } from 'react-router-typesafe'
 
 export const settingsActions = async (props: ActionFunctionArgs<any>) => {
-  if (props.request.method === "PUT") {
-    const formData = await props.request.formData();
-    const formDataEntries = Object.fromEntries(formData.entries());
+  if (props.request.method === 'PUT') {
+    const formData = await props.request.formData()
+    const formDataEntries = Object.fromEntries(formData.entries())
     const settings: Settings = {
       displayUnproductiveNotifications:
-        formDataEntries["displayUnproductiveNotifications"] === "on",
+        formDataEntries['displayUnproductiveNotifications'] === 'on',
       productivityThresholdPercentage: Number(
-        formDataEntries["productivityThresholdPercentage"] ?? 70
+        formDataEntries['productivityThresholdPercentage'] ?? 70,
       ),
       productivityCheckInterval:
-        Number(formDataEntries["productivityCheckInterval"] ?? 5) * 60000,
-      runInBackground: formDataEntries["runInBackground"] === "on",
-      runOnStartup: formDataEntries["runOnStartup"] === "on",
-      showWindowOnStartup: formDataEntries["showWindowOnStartup"] === "on",
-    };
-    await window.electronAPI.setStoreValue("settings", settings);
+        Number(formDataEntries['productivityCheckInterval'] ?? 5) * 60000,
+      runInBackground: formDataEntries['runInBackground'] === 'on',
+      runOnStartup: formDataEntries['runOnStartup'] === 'on',
+      showWindowOnStartup: formDataEntries['showWindowOnStartup'] === 'on',
+    }
+    await window.electronAPI.setStoreValue('settings', settings)
   }
-  return null;
-};
+  return null
+}
 
 const Settings = () => {
-  const { settingsPromise } = useRouteLoaderData<typeof rootLoader>("root");
+  const { settingsPromise } = useRouteLoaderData<typeof rootLoader>('root')
 
   return (
     <div>
@@ -115,13 +115,13 @@ const Settings = () => {
                   <button type="submit">Save</button>
                 </Form>
               </div>
-            );
+            )
           }}
         />
       </Suspense>
       <button onClick={() => window.electronAPI.quitApp()}>Quit App</button>
     </div>
-  );
-};
+  )
+}
 
-export default Settings;
+export default Settings

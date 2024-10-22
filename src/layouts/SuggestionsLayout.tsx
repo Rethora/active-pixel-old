@@ -1,7 +1,7 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom'
 
 const SuggestionLayout = () => {
-  return <Outlet />;
-};
+  return <Outlet />
+}
 
-export default SuggestionLayout;
+export default SuggestionLayout

@@ -14,7 +14,7 @@ const RootLayout = () => {
       console.log('Unproductive period! Active Percentage:', activePercentage)
       navigate('suggestions/random/stretch')
     })
-  }, [])
+  }, [navigate])
 
   return (
     <div>

@@ -10,6 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "lint:fix": "eslint --ext .ts,.tsx . --fix",
     "format": "prettier . --write --ignore-unknown"
   },
   "devDependencies": {
@@ -33,6 +34,8 @@
     "electron": "33.0.1",
     "eslint": "^8.0.1",
     "eslint-plugin-import": "^2.25.0",
+    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "node-loader": "^2.0.0",
     "prettier": "^3.3.3",

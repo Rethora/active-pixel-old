@@ -213,10 +213,8 @@ ipcMain.handle(
       // TODO: fine tune this to only check the necessary settings
       restartActivityLogger()
 
-      const { runOnStartup, runInBackground } = value
-      runOnStartup ? autoLauncher.enable() : autoLauncher.disable()
-
-      shouldRunInBackground = runInBackground
+      const settings = await storeFunctions.getStoreValue('settings')
+      settings.runOnStartup ? autoLauncher.enable() : autoLauncher.disable()
     }
   },
 )

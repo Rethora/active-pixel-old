@@ -20,12 +20,12 @@ This app isn't only beneficial to remote workers, but to anyone who spends a lon
 2. **Install dependencies**:
 
    ```sh
-   yarn install
+   npm install
    ```
 
 3. **Run the application**:
    ```sh
-   yarn start
+   npm run start
    ```
    **or** use debug launch config
 

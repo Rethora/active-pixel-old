@@ -107,6 +107,8 @@ export interface SuggestionFilters {
   category?: Category[]
 }
 
+export type SuggestionFilterKey = keyof SuggestionFilters
+
 export const getFullFilterConfig = (filters: SuggestionFilters = {}) => {
   return {
     force:

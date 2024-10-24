@@ -10,11 +10,17 @@ import {
 
 export type FormMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
-export const generateSelectOptions = (enumObj: { [key: string]: unknown }) => {
-  return Object.values(enumObj).filter((value) => typeof value === 'string')
+export const generateSelectOptions = (enumObj: object): string[] => {
+  return Object.values(enumObj)
 }
 
-export const generateFormInputs = () => {
+type FormInput = {
+  label: string
+  name: string
+  options: string[]
+}
+
+export const generateFormInputs = (): FormInput[] => {
   return [
     {
       label: 'Force',

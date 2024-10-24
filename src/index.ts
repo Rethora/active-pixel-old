@@ -182,7 +182,7 @@ const editCronJob = (task: Task) => {
 const deleteCronJob = (taskId: string) => {
   console.log('Deleting cron job', taskId)
   if (scheduledJobs[taskId]) {
-    scheduledJobs[taskId].cancel()
+    scheduledJobs[taskId]?.cancel()
     delete scheduledJobs[taskId]
   }
 }

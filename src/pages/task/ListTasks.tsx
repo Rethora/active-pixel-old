@@ -1,7 +1,8 @@
 import { Suspense } from 'react'
-import { Await, makeLoader, useLoaderData } from 'react-router-typesafe'
+import { makeLoader, useLoaderData } from 'react-router-typesafe'
 import Loading from '@/components/Loading'
 import { Link } from 'react-router-dom'
+import Await from '@/components/Await'
 
 export const listTasksLoader = makeLoader(() => ({
   tasksPromise: window.electronAPI.getAllTasks(),

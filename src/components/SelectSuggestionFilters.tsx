@@ -2,6 +2,7 @@ import { useEffect, useState, ChangeEvent, useCallback } from 'react'
 import { generateFormInputs } from '@/utils/form'
 import {
   getSuggestionsWithFilters,
+  SuggestionFilterKey,
   SuggestionFilters,
 } from '@/utils/suggestions'
 
@@ -30,16 +31,17 @@ const SelectSuggestionFilters = ({ onFiltersChange, defaultValues }: Props) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, checked } = e.target
     setFilters((prevFilters) => {
-      const currentValues = prevFilters[name as keyof SuggestionFilters] || []
+      const filterKey = name as SuggestionFilterKey
+      const currentValues = (prevFilters[filterKey] ?? []) as string[]
       if (checked) {
         return {
           ...prevFilters,
-          [name]: [...currentValues, value],
+          [filterKey]: [...currentValues, value],
         }
       } else {
         return {
           ...prevFilters,
-          [name]: currentValues.filter((v: string) => v !== value),
+          [filterKey]: currentValues.filter((v) => v !== value),
         }
       }
     })
@@ -74,9 +76,9 @@ const SelectSuggestionFilters = ({ onFiltersChange, defaultValues }: Props) => {
                   defaultChecked={
                     (
                       defaultValues?.[
-                        input.name as keyof SuggestionFilters
+                        input.name as SuggestionFilterKey
                       ] as string[]
-                    )?.includes(option as string) || false
+                    )?.includes(option) || false
                   }
                 />
                 <label>{option}</label>

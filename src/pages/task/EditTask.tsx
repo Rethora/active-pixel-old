@@ -1,5 +1,6 @@
 import TaskForm from '@/forms/TaskForm'
-import { Await, makeAction, useLoaderData } from 'react-router-typesafe'
+import { makeAction, useLoaderData } from 'react-router-typesafe'
+import Await from '@/components/Await'
 import { Suspense } from 'react'
 import Loading from '@/components/Loading'
 import { getTaskLoader } from '@/pages/task/GetTask'

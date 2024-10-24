@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
-import { Await, makeLoader, useLoaderData } from 'react-router-typesafe'
+import { makeLoader, useLoaderData } from 'react-router-typesafe'
+import Await from '@/components/Await'
 import Loading from '@/components/Loading'
 import { getFullFilterConfig } from '@/utils/suggestions'
 import { capitalize } from '@/utils/string'

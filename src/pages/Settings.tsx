@@ -2,7 +2,8 @@ import { Suspense } from 'react'
 import { ActionFunctionArgs, Form } from 'react-router-dom'
 import { Settings } from '@/utils/store'
 import { rootLoader } from '@/layouts/RootLayout'
-import { useRouteLoaderData, Await } from 'react-router-typesafe'
+import { useRouteLoaderData } from 'react-router-typesafe'
+import Await from '@/components/Await'
 
 export const settingsActions = async (
   props: ActionFunctionArgs<{

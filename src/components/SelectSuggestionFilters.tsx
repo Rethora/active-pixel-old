@@ -25,7 +25,7 @@ const SelectSuggestionFilters = ({ onFiltersChange, defaultValues }: Props) => {
     const filteredSuggestions = getSuggestionsWithFilters(filters)
     const numberOfFilteredResults = filteredSuggestions.length
     setNumberOfResults(numberOfFilteredResults)
-    onFiltersChange && onFiltersChange(filters)
+    if (onFiltersChange) onFiltersChange(filters)
   }, [filters, onFiltersChange])
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {

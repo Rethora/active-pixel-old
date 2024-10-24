@@ -61,7 +61,11 @@ const initAutoLaunch = async () => {
 export const showHiddenWindow = () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore()
-    mainWindow.isVisible() ? mainWindow.focus() : mainWindow.show()
+    if (mainWindow.isVisible()) {
+      mainWindow.focus()
+    } else {
+      mainWindow.show()
+    }
   }
 }
 
@@ -235,7 +239,11 @@ ipcMain.handle(
       restartActivityLogger()
 
       const settings = await storeFunctions.getStoreValue('settings')
-      settings.runOnStartup ? autoLauncher.enable() : autoLauncher.disable()
+      if (settings.runOnStartup) {
+        autoLauncher.enable()
+      } else {
+        autoLauncher.disable()
+      }
 
       shouldRunInBackground = settings.runInBackground
     }

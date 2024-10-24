@@ -6,7 +6,7 @@ Thank you for considering contributing to Active Pixel! Here are some guidelines
 
 ### Reporting Bugs
 
-1. Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/your-repo/active-pixel/issues).
+1. Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/Rethora/active-pixel/issues).
 2. If you're unable to find an open issue addressing the problem, open a new one. Be sure to include:
    - A descriptive title and summary.
    - Steps to reproduce the issue.
@@ -14,7 +14,7 @@ Thank you for considering contributing to Active Pixel! Here are some guidelines
 
 ### Suggesting Enhancements
 
-1. Check if the enhancement was already suggested by searching on GitHub under [Issues](https://github.com/your-repo/active-pixel/issues).
+1. Check if the enhancement was already suggested by searching on GitHub under [Issues](https://github.com/Rethora/active-pixel/issues).
 2. If not, open a new issue and provide:
    - A clear and descriptive title.
    - A detailed description of the enhancement.
@@ -30,10 +30,6 @@ Thank you for considering contributing to Active Pixel! Here are some guidelines
 6. Open a pull request against the `main` branch of the original repository. Include:
    - A descriptive title and summary of the changes.
    - A reference to the issue being addressed, if applicable.
-
-## Code of Conduct
-
-Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and inclusive environment for everyone.
 
 ## Getting Help
 

@@ -1,100 +1,97 @@
-import { powerMonitor, Notification } from "electron";
-import { mainWindow, showHiddenWindow } from "@/index";
-import { storeFunctions } from "@/utils/store";
+import { powerMonitor, Notification } from 'electron'
+import { mainWindow, showHiddenWindow } from '@/index'
+import { storeFunctions } from '@/utils/store'
 
-const IDLE_THRESHOLD = 1; // seconds
-const CHECK_INTERVAL_MS = 1000; // 1 second
+const IDLE_THRESHOLD = 1 // seconds
+const CHECK_INTERVAL_MS = 1000 // 1 second
 // const PRODUCTIVITY_CHECK_INTERVAL_MIN = 1; // 5 minutes
 // const PRODUCTIVITY_CHECK_INTERVAL_MS =
 // PRODUCTIVITY_CHECK_INTERVAL_MIN * 60 * 1000; // 5 minutes
 // const PRODUCTIVITY_THRESHOLD_PERCENTAGE = 70; // 70%
-const NOTIFICATION_DELAY_MS = 5000; // 5 seconds
+const NOTIFICATION_DELAY_MS = 5000 // 5 seconds
 
-let activeTime = 0;
-let shortCheckInterval: NodeJS.Timeout;
-let longCheckInterval: NodeJS.Timeout;
+let activeTime = 0
+let shortCheckInterval: NodeJS.Timeout
+let longCheckInterval: NodeJS.Timeout
 
 const resetActiveTime = () => {
-  activeTime = 0;
-};
+  activeTime = 0
+}
 
 const trackActivity = () => {
-  const state = powerMonitor.getSystemIdleState(3); // ? Testing this rn (gives the user 3 seconds of leeway)
-  if (state === "active") {
-    activeTime += 1;
+  const state = powerMonitor.getSystemIdleState(3) // ? Testing this rn (gives the user 3 seconds of leeway)
+  if (state === 'active') {
+    activeTime += 1
   }
-};
+}
 
 const showUnproductiveNotification = (activePercentage: number) => {
-  console.log("Showing unproductive notification...");
-  const activePercentageRounded = Math.round(activePercentage);
+  console.log('Showing unproductive notification...')
+  const activePercentageRounded = Math.round(activePercentage)
   const notification = new Notification({
-    title: "Ready for a short break?",
-    body: "A quick stretch can help you stay productive!",
-  });
-  notification.on("click", () => {
-    console.log(mainWindow);
-    showHiddenWindow();
-    mainWindow?.webContents.send(
-      "unproductive-period",
-      activePercentageRounded
-    );
-  });
+    title: 'Ready for a short break?',
+    body: 'A quick stretch can help you stay productive!',
+  })
+  notification.on('click', () => {
+    console.log(mainWindow)
+    showHiddenWindow()
+    mainWindow?.webContents.send('unproductive-period', activePercentageRounded)
+  })
 
-  notification.show();
-};
+  notification.show()
+}
 
 const checkUserProductivity = async () => {
-  const settings = await storeFunctions.getStoreValue("settings");
+  const settings = await storeFunctions.getStoreValue('settings')
   const activePercentage =
-    (activeTime / (settings.productivityCheckInterval / 1000)) * 100;
+    (activeTime / (settings.productivityCheckInterval / 1000)) * 100
 
-  const idleTime = powerMonitor.getSystemIdleTime();
-  console.log("End of period, active percentage:", activePercentage);
+  const idleTime = powerMonitor.getSystemIdleTime()
+  console.log('End of period, active percentage:', activePercentage)
   if (activePercentage <= settings.productivityThresholdPercentage) {
     if (idleTime >= IDLE_THRESHOLD) {
-      handleUnproductivePeriod(activePercentage);
+      handleUnproductivePeriod(activePercentage)
     } else {
-      console.log("User is busy, delaying notification...");
-      setTimeout(checkUserProductivity, NOTIFICATION_DELAY_MS);
+      console.log('User is busy, delaying notification...')
+      setTimeout(checkUserProductivity, NOTIFICATION_DELAY_MS)
     }
   } else {
-    resetActiveTime();
+    resetActiveTime()
   }
-};
+}
 
 const handleUnproductivePeriod = (activePercentage: number) => {
   console.log(
-    "Unproductive period detected! Active percentage:",
-    activePercentage
-  );
-  showUnproductiveNotification(activePercentage);
-  resetActiveTime();
-};
+    'Unproductive period detected! Active percentage:',
+    activePercentage,
+  )
+  showUnproductiveNotification(activePercentage)
+  resetActiveTime()
+}
 
 export const startActivityLogger = async () => {
-  const settings = await storeFunctions.getStoreValue("settings");
+  const settings = await storeFunctions.getStoreValue('settings')
   if (!settings.displayUnproductiveNotifications) {
-    console.log("Unproductive notifications are disabled, not starting logger");
-    return;
+    console.log('Unproductive notifications are disabled, not starting logger')
+    return
   }
-  console.log("Starting activity logger...");
-  shortCheckInterval = setInterval(trackActivity, CHECK_INTERVAL_MS); // Check every second
+  console.log('Starting activity logger...')
+  shortCheckInterval = setInterval(trackActivity, CHECK_INTERVAL_MS) // Check every second
   longCheckInterval = setInterval(
     checkUserProductivity,
-    settings.productivityCheckInterval
-  );
-};
+    settings.productivityCheckInterval,
+  )
+}
 
 export const stopActivityLogger = () => {
-  console.log("Stopping activity logger...");
-  clearInterval(shortCheckInterval);
-  clearInterval(longCheckInterval);
-  activeTime = 0;
-};
+  console.log('Stopping activity logger...')
+  clearInterval(shortCheckInterval)
+  clearInterval(longCheckInterval)
+  activeTime = 0
+}
 
 export const restartActivityLogger = () => {
-  console.log("Restarting activity logger...");
-  stopActivityLogger();
-  startActivityLogger();
-};
+  console.log('Restarting activity logger...')
+  stopActivityLogger()
+  startActivityLogger()
+}

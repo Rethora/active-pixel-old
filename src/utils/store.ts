@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs'
 import { join, dirname } from 'path'
 import { homedir } from 'os'
+import { v4 as uuidv4 } from 'uuid'
+import { SuggestionFilters } from '@/utils/suggestions'
 
 export interface Settings {
   displayUnproductiveNotifications: boolean
@@ -13,8 +15,17 @@ export interface Settings {
 
 export type SettingsKey = keyof Settings
 
+export interface Task {
+  id: string
+  name: string
+  cronExpression: string // e.g., '0 9 * * *' for 9 AM every day
+  enabled: boolean
+  filters: SuggestionFilters
+}
+
 export interface Store {
   settings: Settings
+  tasks: Task[]
 }
 
 export const defaultSettings: Settings = {
@@ -28,6 +39,7 @@ export const defaultSettings: Settings = {
 
 export const defaultStoreValues: Store = {
   settings: defaultSettings,
+  tasks: [],
 }
 
 const filePath = join(
@@ -47,14 +59,46 @@ export const ensureDirectoryExistence = async (filePath: string) => {
   }
 }
 
+const deepMerge = (
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> => {
+  if (
+    typeof target === 'object' &&
+    target !== null &&
+    typeof source === 'object' &&
+    source !== null
+  ) {
+    for (const key in source) {
+      if (source[key] instanceof Object && key in target) {
+        Object.assign(
+          source[key],
+          deepMerge(
+            target[key] as Record<string, unknown>,
+            source[key] as Record<string, unknown>,
+          ),
+        )
+      }
+    }
+    Object.assign(target || {}, source)
+    return target
+  }
+  return source
+}
+
 export const readStore = async (): Promise<Store> => {
   try {
     const data = await fs.readFile(filePath, 'utf-8')
-    return JSON.parse(data) as Store
+    const parsedData = JSON.parse(data)
+    const store = deepMerge(
+      { ...defaultStoreValues },
+      parsedData,
+    ) as unknown as Store
+    return store
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       // File does not exist, return default store values
-      return { ...defaultStoreValues }
+      return defaultStoreValues
     }
     throw error
   }
@@ -68,6 +112,11 @@ export type StoreFunctions = {
     value: Store[K],
   ) => Promise<void>
   deleteStoreValue: <K extends keyof Store>(key: K) => Promise<void>
+  getAllTasks: () => Promise<Task[]>
+  getTask: (id: string) => Promise<Task | undefined>
+  createTask: (task: Omit<Task, 'id'>) => Promise<Task>
+  editTask: (id: string, update: Partial<Omit<Task, 'id'>>) => Promise<Task>
+  deleteTask: (task: Task) => Promise<void>
 }
 
 export const storeFunctions: StoreFunctions = {
@@ -94,5 +143,49 @@ export const storeFunctions: StoreFunctions = {
     const store = await readStore()
     delete store[key]
     await storeFunctions.writeStore(store)
+  },
+
+  getAllTasks: async (): Promise<Task[]> => {
+    const store = await readStore()
+    return store.tasks
+  },
+
+  getTask: async (id: string): Promise<Task | undefined> => {
+    const store = await readStore()
+    return store.tasks.find((t) => t.id === id)
+  },
+
+  createTask: async (task: Omit<Task, 'id'>): Promise<Task> => {
+    const store = await readStore()
+    const newTask: Task = { ...task, id: uuidv4() }
+    store.tasks.push(newTask)
+    await storeFunctions.writeStore(store)
+    return newTask
+  },
+
+  editTask: async (
+    id: string,
+    update: Partial<Omit<Task, 'id'>>,
+  ): Promise<Task> => {
+    const store = await readStore()
+    const task = store.tasks.find((t) => t.id === id)
+    if (task) {
+      Object.assign(task, update)
+      await storeFunctions.writeStore(store)
+      return task
+    } else {
+      throw new Error('Task not found')
+    }
+  },
+
+  deleteTask: async (task: Task): Promise<void> => {
+    const store = await readStore()
+    const index = store.tasks.findIndex((t) => t.id === task.id)
+    if (index !== -1) {
+      store.tasks.splice(index, 1)
+      await storeFunctions.writeStore(store)
+    } else {
+      throw new Error('Task not found')
+    }
   },
 }

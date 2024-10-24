@@ -27,6 +27,7 @@
     "@types/node-schedule": "^2.1.7",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "@vercel/webpack-asset-relocator-loader": "1.7.3",
@@ -56,12 +57,15 @@
   },
   "license": "MIT",
   "dependencies": {
+    "antd": "^5.21.5",
     "auto-launch": "^5.0.6",
     "electron-squirrel-startup": "^1.0.1",
     "node-schedule": "^2.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-js-cron": "^5.0.1",
     "react-router-dom": "^6.27.0",
-    "react-router-typesafe": "^1.5.0"
+    "react-router-typesafe": "^1.5.0",
+    "uuid": "^10.0.0"
   }
 }

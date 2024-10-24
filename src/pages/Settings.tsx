@@ -1,9 +1,8 @@
 import { Suspense } from 'react'
-import { ActionFunctionArgs, Await, Form } from 'react-router-dom'
+import { ActionFunctionArgs, Form } from 'react-router-dom'
 import { Settings } from '@/utils/store'
-
 import { rootLoader } from '@/layouts/RootLayout'
-import { useRouteLoaderData } from 'react-router-typesafe'
+import { useRouteLoaderData, Await } from 'react-router-typesafe'
 
 export const settingsActions = async (
   props: ActionFunctionArgs<{
@@ -40,7 +39,7 @@ const Settings = () => {
           resolve={settingsPromise}
           errorElement={<p>Error loading settings</p>}
         >
-          {(resolvedSettings: Settings) => (
+          {(resolvedSettings) => (
             <div>
               <h1>Settings</h1>
               <Form method="PUT" action="/settings">

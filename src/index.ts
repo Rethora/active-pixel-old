@@ -5,8 +5,9 @@ import {
   startActivityLogger,
   stopActivityLogger,
 } from '@/utils/activityLogger'
-import { Store, StoreFunctions, storeFunctions } from '@/utils/store'
+import { Store, StoreFunctions, storeFunctions, Task } from '@/utils/store'
 import AutoLaunch from 'auto-launch'
+import schedule from 'node-schedule'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
@@ -16,9 +17,15 @@ declare global {
     electronAPI: {
       getStoreValue: StoreFunctions['getStoreValue']
       setStoreValue: StoreFunctions['setStoreValue']
+      getAllTasks: StoreFunctions['getAllTasks']
+      getTask: StoreFunctions['getTask']
+      createTask: StoreFunctions['createTask']
+      editTask: StoreFunctions['editTask']
+      deleteTask: StoreFunctions['deleteTask']
       onUnproductivePeriod: (
         callback: (activePercentage: number) => void,
       ) => Electron.IpcRenderer
+      handleTask: (callback: (task: Task) => void) => Electron.IpcRenderer
       quitApp: () => void
     }
   }
@@ -29,6 +36,8 @@ let tray: Tray | null
 let isQuitting = false
 // ! This flag is needed because can't get async value on close event
 let shouldRunInBackground: boolean
+const scheduledJobs: { [key: string]: schedule.Job } = {}
+
 ;(async () => {
   shouldRunInBackground = (await storeFunctions.getStoreValue('settings'))
     .runInBackground
@@ -57,8 +66,6 @@ export const showHiddenWindow = () => {
 }
 
 const gotTheLock = app.requestSingleInstanceLock()
-console.log('gotTheLock', gotTheLock)
-
 if (!gotTheLock) {
   isQuitting = true
   app.quit()
@@ -145,6 +152,41 @@ const createLaunchNotification = () => {
   notification.show()
 }
 
+const addCronJob = (task: Task) => {
+  if (!task.enabled) {
+    return
+  }
+  console.log('Adding cron job', task.name)
+  const job = schedule.scheduleJob(task.cronExpression, () => {
+    const notification = new Notification({
+      title: task.name,
+      body: 'Click here to get a suggestion',
+    })
+    notification.on('click', () => {
+      showHiddenWindow()
+      mainWindow?.webContents.send('handle-task', task)
+    })
+    notification.show()
+  })
+  scheduledJobs[task.id] = job
+}
+
+const editCronJob = (task: Task) => {
+  console.log('Editing cron job', task.name)
+  if (scheduledJobs[task.id]) {
+    scheduledJobs[task.id]?.cancel()
+  }
+  addCronJob(task)
+}
+
+const deleteCronJob = (taskId: string) => {
+  console.log('Deleting cron job', taskId)
+  if (scheduledJobs[taskId]) {
+    scheduledJobs[taskId].cancel()
+    delete scheduledJobs[taskId]
+  }
+}
+
 app.on('ready', async () => {
   console.log('App is ready')
   const settings = await storeFunctions.getStoreValue('settings')
@@ -156,29 +198,8 @@ app.on('ready', async () => {
   if (!settings.showWindowOnStartup && settings.runInBackground) {
     createLaunchNotification()
   }
-
-  // [
-  //   {
-  //     time: "*/5 * * * *",
-  //     title: "5 min has passed",
-  //     body: "Time to get to work!",
-  //   },
-  //   {
-  //     time: "48 12 * * *",
-  //     title: "It's 12:48",
-  //     body: "Time to go home!",
-  //   },
-  // ].forEach((scheduleConfig) => {
-  //   schedule.scheduleJob(scheduleConfig.time, async () => {
-  //     const notification = new Notification({
-  //       title: scheduleConfig.title,
-  //       body: scheduleConfig.body,
-  //     });<button></button>
-  //     });
-  //     notification.show();
-  //   });
-  // });
-  // await initAutoLaunch()
+  const tasks = await storeFunctions.getAllTasks()
+  tasks.forEach(addCronJob)
 })
 
 app.on('before-quit', () => {
@@ -215,7 +236,52 @@ ipcMain.handle(
 
       const settings = await storeFunctions.getStoreValue('settings')
       settings.runOnStartup ? autoLauncher.enable() : autoLauncher.disable()
+
+      shouldRunInBackground = settings.runInBackground
     }
+  },
+)
+
+ipcMain.handle('get-all-tasks', async () => {
+  return await storeFunctions.getAllTasks()
+})
+
+ipcMain.handle(
+  'get-task',
+  async (_: Electron.IpcMainInvokeEvent, id: string) => {
+    return await storeFunctions.getTask(id)
+  },
+)
+
+ipcMain.handle(
+  'create-task',
+  async (_: Electron.IpcMainInvokeEvent, task: Omit<Task, 'id'>) => {
+    const newTask = await storeFunctions.createTask(task)
+    addCronJob(newTask)
+  },
+)
+
+ipcMain.handle(
+  'edit-task',
+  async (
+    _: Electron.IpcMainInvokeEvent,
+    id: string,
+    update: Partial<Omit<Task, 'id'>>,
+  ) => {
+    try {
+      const task = await storeFunctions.editTask(id, update)
+      editCronJob(task)
+    } catch (error) {
+      console.error('Error editing task:', error)
+    }
+  },
+)
+
+ipcMain.handle(
+  'delete-task',
+  async (_: Electron.IpcMainInvokeEvent, task: Task) => {
+    await storeFunctions.deleteTask(task)
+    deleteCronJob(task.id)
   },
 )
 

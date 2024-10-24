@@ -2,9 +2,12 @@ import { createRoot } from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import RootLayout, { rootLoader } from '@/layouts/RootLayout'
 import Home from '@/pages/Home'
-import SuggestionsLayout from '@/layouts/SuggestionsLayout'
 import SettingsPage, { settingsActions } from '@/pages/Settings'
-import GetRandomStretch from '@/pages/suggestions/GetRandomStretch'
+import ListTasks, { listTasksLoader } from '@/pages/task/ListTasks'
+import NewTask, { postNewTask } from '@/pages/task/NewTask'
+import GetTask, { getTaskLoader } from '@/pages/task/GetTask'
+import EditTask, { putTaskAction } from '@/pages/task/EditTask'
+import GetFilteredSuggestion from '@/pages/suggestions/GetFilteredSuggestion'
 
 const router = createHashRouter([
   {
@@ -23,19 +26,39 @@ const router = createHashRouter([
         action: settingsActions,
       },
       {
+        path: 'task',
+        children: [
+          {
+            path: 'list',
+            element: <ListTasks />,
+            loader: listTasksLoader,
+          },
+          {
+            path: 'get/:id',
+            element: <GetTask />,
+            loader: getTaskLoader,
+          },
+          {
+            path: 'edit/:id',
+            element: <EditTask />,
+            loader: getTaskLoader,
+            action: putTaskAction,
+          },
+          {
+            path: 'new',
+            element: <NewTask />,
+            action: postNewTask,
+          },
+        ],
+      },
+      {
         path: 'suggestions',
-        element: <SuggestionsLayout />,
         children: [
           {
             children: [
               {
-                path: 'random',
-                children: [
-                  {
-                    path: 'stretch',
-                    element: <GetRandomStretch />,
-                  },
-                ],
+                path: 'filtered',
+                element: <GetFilteredSuggestion />,
               },
             ],
           },

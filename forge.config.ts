@@ -1,6 +1,6 @@
 import type { ForgeConfig } from '@electron-forge/shared-types'
 import { MakerSquirrel } from '@electron-forge/maker-squirrel'
-import { MakerZIP } from '@electron-forge/maker-zip'
+// import { MakerZIP } from '@electron-forge/maker-zip'
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { PublisherGithub } from '@electron-forge/publisher-github'
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives'
@@ -19,7 +19,7 @@ const config: ForgeConfig = {
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),
-    new MakerZIP({}, ['darwin']),
+    // new MakerZIP({}, ['darwin']),
     new MakerDeb({}),
   ],
   publishers: [

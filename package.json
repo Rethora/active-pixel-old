@@ -3,6 +3,7 @@
   "productName": "active-pixel",
   "version": "0.0.0",
   "description": "A helpful app for keeping you active when you're working on your computer.",
+  "repository": "github:Rethora/active-pixel",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",

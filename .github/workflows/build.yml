@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     branches:
-      - main # change this to your default branch if it's not 'main'
+      - main
 
 jobs:
   release:
@@ -11,35 +11,34 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os:
+          [
+            { name: 'linux', image: 'ubuntu-latest' },
+            { name: 'windows', image: 'windows-latest' },
+            { name: 'macos', image: 'macos-latest' },
+          ]
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up cache
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
-          path: |
-            ~/.npm
-            ~/.cache/yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-node-
 
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
-        run: yarn install
+        run: npm ci
 
-      - name: Build and package
-        run: yarn make
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.os }}
-          path: out/make
+      - name: Publish app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run publish

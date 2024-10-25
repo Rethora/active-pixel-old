@@ -20,6 +20,7 @@ const CronScheduler = ({
       const interval = cronParser.parseExpression(value)
       return interval.next().toString()
     } catch (err) {
+      console.error(err)
       return 'Invalid cron expression'
     }
   }, [value])

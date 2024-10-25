@@ -71,13 +71,15 @@ const deepMerge = (
   ) {
     for (const key in source) {
       if (source[key] instanceof Object && key in target) {
-        Object.assign(
-          source[key],
-          deepMerge(
-            target[key] as Record<string, unknown>,
+        if (typeof source[key] === 'object' && source[key] !== null) {
+          Object.assign(
             source[key] as Record<string, unknown>,
-          ),
-        )
+            deepMerge(
+              target[key] as Record<string, unknown>,
+              source[key] as Record<string, unknown>,
+            ),
+          )
+        }
       }
     }
     Object.assign(target || {}, source)

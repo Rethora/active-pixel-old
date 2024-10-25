@@ -8,6 +8,7 @@ import {
 import { Store, StoreFunctions, storeFunctions, Task } from '@/utils/store'
 import AutoLaunch from 'auto-launch'
 import schedule from 'node-schedule'
+import { updateElectronApp } from 'update-electron-app'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
@@ -30,6 +31,9 @@ declare global {
     }
   }
 }
+
+// * Check for and apply updates on start up
+updateElectronApp()
 
 export let mainWindow: BrowserWindow | null
 let tray: Tray | null
@@ -61,7 +65,11 @@ const initAutoLaunch = async () => {
 export const showHiddenWindow = () => {
   if (mainWindow) {
     if (mainWindow.isMinimized()) mainWindow.restore()
-    mainWindow.isVisible() ? mainWindow.focus() : mainWindow.show()
+    if (mainWindow.isVisible()) {
+      mainWindow.focus()
+    } else {
+      mainWindow.show()
+    }
   }
 }
 
@@ -235,7 +243,11 @@ ipcMain.handle(
       restartActivityLogger()
 
       const settings = await storeFunctions.getStoreValue('settings')
-      settings.runOnStartup ? autoLauncher.enable() : autoLauncher.disable()
+      if (settings.runOnStartup) {
+        autoLauncher.enable()
+      } else {
+        autoLauncher.disable()
+      }
 
       shouldRunInBackground = settings.runInBackground
     }

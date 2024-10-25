@@ -8,6 +8,7 @@ import {
 import { Store, StoreFunctions, storeFunctions, Task } from '@/utils/store'
 import AutoLaunch from 'auto-launch'
 import schedule from 'node-schedule'
+import { updateElectronApp } from 'update-electron-app'
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string
@@ -30,6 +31,9 @@ declare global {
     }
   }
 }
+
+// * Check for and apply updates on start up
+updateElectronApp()
 
 export let mainWindow: BrowserWindow | null
 let tray: Tray | null
